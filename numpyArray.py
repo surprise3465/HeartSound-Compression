@@ -114,3 +114,10 @@ print(a)
 #当下标使用整数和切片时，共享存储区域
 #当下标使用整数序列，整数数组和布尔数组时，只能对数据进行复制
 
+number = np.linspace(0.1,10,100)
+y = number.astype(np.float)
+x2 = y*0.5
+i = y.view(np.int32)
+i[:] = 0x5f3759df-(i>>1)
+y = y*(1.5-x2*y*y)
+print(np.max(np.abs(1/np.sqrt(number)-y)))
