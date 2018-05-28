@@ -1,9 +1,12 @@
 import numpy as np
-from scipy.signal import butter, lfilter
+from scipy.signal import butter, lfilter,filtfilt
+from scipy import fftpack
 
-def hs_pcm(x, maxx, minx, bit):
+def hs_pcm(x,bit):
+    maxx = np.max(x)
+    minx = np.min(x)
     t=maxx-minx
-    quiz=t/(2^bit)
+    quiz=t/(2**bit)
     y=quiz*np.round(x/quiz)
     return y   
 
@@ -24,7 +27,7 @@ def hs_tp(x):
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
     b, a = butter_bandpass(lowcut, highcut, fs, order=order)
-    y = lfilter(b, a, data)
+    y = filtfilt(b, a, data)
     return y
   
 
@@ -37,51 +40,19 @@ def butter_bandpass(lowcut, highcut, fs, order=5):
 
 def Rwave_detection(x,fsd):
     fs=2000
-    n = fsd/fs
-    xs = x[1::n]
-    ecg=resample(x,fs,fsd)
-    [b,a]=butter(5,[10/fs 50/fs])# 滤波，带宽介于5-25Hz
-    Delay=50;
-    b=fir1(Delay,[10/fs 50/fs]);a=1;
-    fecg=filter(b,a,ecg);
-    clear b a;
-    decg=diff(fecg);
-    hecg=hilbert(decg);
-    secg=abs(hecg.^2);
+    n = int(fsd/fs)
+    xs = x[::n]
+    fxs = butter_bandpass_filter(xs,5,25,fs,3)
+    dfxs = np.diff(fxs)
+    hx = fftpack.hilbert(dfxs.reshape(dfxs.size,1))
+    secg = np.abs(np.square(hx))
     i=1
-    j=1
-    ind1=np.array.zeros(length(secg))
-    while(i<=length(secg)):
-        if(secg(i)>1e-4):
-            ind1(j)=i
+    ind1=[]
+    while(i<len(secg)):
+        if(secg[i]>1e-4):
+            ind1.append(i)
             i=i+750
-            j=j+1
-        else
+        else:
             i=i+1
-        end
-    end
-    I=find(ind1~=0)
-    return ind=ind1(I)*fsd/fs
-
-ecg=resample(x,fs,fsd)
-[b,a]=butter(5,[10/fs 50/fs]); % 滤波，带宽介于5-25Hz
-Delay=50;
-b=fir1(Delay,[10/fs 50/fs]);a=1;
-fecg=filter(b,a,ecg);
-clear b a;
-
-decg=diff(fecg);
-hecg=hilbert(decg);
-secg=abs(hecg.^2);
-i=1;j=1;ind1=zeros(1,length(secg))
-while(i<=length(secg))
-    if(secg(i)>1e-4)
-        ind1(j)=i;
-        i=i+750;
-        j=j+1;
-    else
-        i=i+1;
-    end
-end
-I=find(ind1~=0);
-ind=ind1(I)*fsd/fs;
+    ReInd=(np.array(ind1, dtype = int)*fsd/fs).astype(int)
+    return ReInd
