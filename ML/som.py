@@ -98,6 +98,7 @@ def normal_X(X):
         temp = np.sum(np.multiply(X[i], X[i]))
         X[i] /= np.sqrt(temp)
     return X
+    
 def normal_W(W):
     """
     :param W:二维矩阵，D*(n*m)，D个n*m维的数据

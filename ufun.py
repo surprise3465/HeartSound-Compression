@@ -27,7 +27,7 @@ def hs_tp(x):
     p = []
     for i in t:
         p.append(t.count(i))
-    return t, p
+    return t, np.array(p, dtype = float)
 
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
@@ -149,50 +149,18 @@ def chooseKmaxValue(inputData, K):
     return nonZeroData, IndexArr
 
 
-def getPcmInfo(x,bit):
+def getPcmInfo(x, bit):
     n = 2**bit
-    unit = 1/(2*n)
-    quiz = np.arange(unit:1:1/n)
+    unit = 1 / (2 * n)
+    quiz = np.arange(unit, 1, 1 / n)
     lent = x.size
 
-    EValue = np.zeros(1,lent)
-    Qindex = np.zeros(1,lent)
+    EValue = np.zeros(1, lent)
+    Qindex = np.zeros(1, lent)
 
     for i in range(lent):
-        Qindex[i]=np.argmin(np.abs(x[i]-quiz));
-        EValue[i]=x[i]-quiz(Qindex[i]);
+        Qindex[i] = np.argmin(np.abs(x[i] - quiz))
+        EValue[i] = x[i] - quiz(Qindex[i])
 
     return EValue, Qindex
 
-def cluster_points(X, mu):
-    clusters  = {}
-    for x in X:
-        bestmukey = min([(i[0], np.linalg.norm(x-mu[i[0]])) \
-                    for i in enumerate(mu)], key=lambda t:t[1])[0]
-        try:
-            clusters[bestmukey].append(x)
-        except KeyError:
-            clusters[bestmukey] = [x]
-    return clusters
- 
-def reevaluate_centers(mu, clusters):
-    newmu = []
-    keys = sorted(clusters.keys())
-    for k in keys:
-        newmu.append(np.mean(clusters[k], axis = 0))
-    return newmu
- 
-def has_converged(mu, oldmu):
-    return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu])
- 
-def find_centers(X, K):
-    # Initialize to K random centers
-    oldmu = random.sample(X, K)
-    mu = random.sample(X, K)
-    while not has_converged(mu, oldmu):
-        oldmu = mu
-        # Assign all points in X to clusters
-        clusters = cluster_points(X, mu)
-        # Reevaluate centers
-        mu = reevaluate_centers(oldmu, clusters)
-    return(mu, clusters)
