@@ -8,11 +8,7 @@ data = sio.loadmat(matfn)
 RawECGData = data['AA']
 shortEcgData = RawECGData[0:80000]
 ReshapeEcgData = shortEcgData.reshape(1, shortEcgData.size)[0]
-QcpEcgData = hs_pcm(ReshapeEcgData, 12)
-tind = Rwave_detection(QcpEcgData, fsd)
-
-pl.plot(QcpEcgData, linewidth=1.0)
-pl.plot(tind, QcpEcgData[tind], 'r*')
+tind = Rwave_detection(ReshapeEcgData, fsd)
+pl.plot(ReshapeEcgData, linewidth=1.0)
+pl.plot(tind, ReshapeEcgData[tind], 'r*')
 pl.show()
-a = hs_prd(QcpEcgData, ReshapeEcgData)
-print(a)

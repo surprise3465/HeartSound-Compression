@@ -5,9 +5,16 @@ import pywt as pwt
 import pylab as pl
 
 
-def hs_pcm(x, bit):
+def hs_spcm(x, bit):
     maxx = np.max(x)
     minx = np.min(x)
+    t = maxx - minx
+    quiz = t / (2**bit)
+    y = quiz * np.round(x / quiz)
+    return y
+
+
+def hs_pcm(x, maxx, minx, bit):
     t = maxx - minx
     quiz = t / (2**bit)
     y = quiz * np.round(x / quiz)
@@ -27,7 +34,7 @@ def hs_tp(x):
     p = []
     for i in t:
         p.append(t.count(i))
-    return t, np.array(p, dtype = float)
+    return t, np.array(p, dtype=float)
 
 
 def butter_bandpass_filter(data, lowcut, highcut, fs, order=5):
@@ -113,8 +120,8 @@ def getKvalue(x, prdvalue):
 
     for coef in coeffs:
         decoeffs.append(np.zeros(coef.size))
-
-    while (flag == 0):
+    z = pwt.waverec(decoeffs, 'db8')
+    while (hs_prd(x, z[0:x.size]) >= prdvalue):
         for index in range(len(coeffs)):
             list_MaxI[index] = np.argmax(np.abs(coeffs[index]))
             list_MaxV[index] = np.max(np.abs(coeffs[index]))
@@ -125,11 +132,6 @@ def getKvalue(x, prdvalue):
         coeffs[tmpMaxI][list_MaxI[tmpMaxI]] = 0
         z = pwt.waverec(decoeffs, 'db8')
         K = K + 1
-        if (hs_prd(x, z[0:x.size]) <= prdvalue):
-            flag = 1
-    pl.plot(x)
-    pl.plot(z, 'r')
-    pl.show()
     return K
 
 
@@ -164,3 +166,25 @@ def getPcmInfo(x, bit):
 
     return EValue, Qindex
 
+
+def SingalToWaveArray(InputX):
+    ArrCoeff = []
+    Indexes = []
+    coeffs = pwt.wavedec(InputX, pwt.Wavelet('db8'), level=4)
+
+    for coef in coeffs:
+        Indexes.append(coef.size)
+        for index in range(len(coef)):
+            ArrCoeff.append(coef[index])
+
+    return np.array(ArrCoeff, dtype=float), np.array(Indexes, dtype=int)
+
+
+def WaveArrayToSignal(InputW, Indexes):
+    decoeffs = []
+    start = 0
+    for ind in range(len(Indexes)):
+        decoeffs.append(InputW[start:start+Indexes[ind]])
+        start += Indexes[ind]
+    z = pwt.waverec(decoeffs, 'db8')
+    return z

@@ -23,7 +23,7 @@ def reevaluate_centers(mu, clusters):
 
 def has_converged(mu, oldmu):
     return (set([tuple(a) for a in mu]) == set([tuple(a) for a in oldmu]))
-
+#tuple(a) for a in 
 
 def find_centers(X, K):
     # Initialize to K random centers

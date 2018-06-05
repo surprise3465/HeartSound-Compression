@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 class App(QWidget):
     def __init__(self):
         super().__init__()
-        self.title = 'PyQt5 simple window - pythonspot.com'
+        self.title = 'Heart Sound Test Window'
         self.left = 100
         self.top = 100
         self.width = 640

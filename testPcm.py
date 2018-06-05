@@ -2,6 +2,12 @@ import scipy.io as sio
 import numpy as np
 import pylab as pl
 from ufun import *
+from lloydmax import *
+
+StartPer = 0 # %起始周期
+fs = 4000
+R = 48  # %单次处理周期数
+qbit = 6
 
 matfn = u'ECG.mat'
 data1 = sio.loadmat(matfn)
@@ -11,38 +17,38 @@ matfn = u'HS.mat'
 data2 = sio.loadmat(matfn)
 RawHsData = data2['data']
 HsData = RawHsData.reshape(1, RawHsData.size)[0]
-HS = hs_spcm(HsData, 16)
-
-fs = 4000
-prdc = 10  # %预设失真度
-p = 5  # %一级量化位数
-CN = 256  # %码数大小
-k = 8  # %矢量量化数
-Kper = 3  # %关联周期数
-R = 48  # %单次处理周期数
-StartPer = 1  # %起始周期
+HS = hs_pcm(HsData,2,-2, 16)
 
 tind = Rwave_detection(EcgData, fs)  # %心音分段
 tlen = np.diff(tind[StartPer:StartPer + R])
 meanh = np.mean(HS[tind[StartPer]:tind[StartPer + R] - 1])
 HS[tind[StartPer]:tind[StartPer + R] -
    1] = HS[tind[StartPer]:tind[StartPer + R] - 1] - meanh
+
+
+HS_Qpcm = hs_spcm(HS,qbit)
+centers = lloydmax_sig(HS,qbit,0.000001)
+HS_Lpcm = hs_Qlmax(HS,centers)
+
 indr = np.argmax(tlen)
 HStrain = HS[tind[StartPer + indr - 1]:tind[StartPer + indr] - 1]
-K = getKvalue(HStrain, prdc)  # %获取稀疏度Kmax
+HSQtrain = HS_Qpcm[tind[StartPer + indr - 1]:tind[StartPer + indr] - 1]
+HSLtrain = HS_Lpcm[tind[StartPer + indr - 1]:tind[StartPer + indr] - 1]
 
-# 获取非零系数，拆分为位置流，幅度流，和残差流
-WK = np.zeros((R, K))
-WS = np.zeros((R, K))
-indamp = np.zeros((R, K))
-Evalue = np.zeros((R, K))
-xlen = 0
-
-WaveC,WaveI = SingalToWaveArray(HStrain)
-HSdetrain = WaveArrayToSignal(WaveC,WaveI)[0:HStrain.size]
-
+prd1 = hs_prd(HStrain,HSQtrain)
+print("标量量化PRD=%f" %prd1)
+pl.subplot(211)
 pl.plot(HStrain)
-pl.plot(HSdetrain,'r')
-prd1 =hs_prd (HStrain, HSdetrain)
+pl.plot(HSQtrain,'r')
+
+prd2 = hs_prd(HStrain,HSLtrain)
+print("Lloyd量化PRD=%f" %prd2)
+pl.subplot(212)
+pl.plot(HStrain)
+pl.plot(HSLtrain,'r')
+
 pl.show()
-print(prd1)
+
+
+
+
