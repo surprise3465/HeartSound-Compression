@@ -3,7 +3,7 @@ import numpy as np
 import pylab as pl
 from ufun import *
 from lloydmax import *
-
+from huffman import *
 StartPer = 0 # %起始周期
 fs = 4000
 R = 48  # %单次处理周期数

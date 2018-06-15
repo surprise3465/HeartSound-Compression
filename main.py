@@ -2,7 +2,7 @@ import scipy.io as sio
 import numpy as np
 import pylab as pl
 from ufun import *
-
+from huffman import*
 matfn = u'ECG.mat'
 data1 = sio.loadmat(matfn)
 RawECGData = data1['AA']
@@ -37,6 +37,11 @@ WS = np.zeros((R, K))
 indamp = np.zeros((R, K))
 Evalue = np.zeros((R, K))
 xlen = 0
+
+HS_Qpcm = hs_spcm(HStrain, 6)
+hdict, code1 = compress(HS_Qpcm)
+code2 = decompress(hdict,code1)
+print(code2==HS_Qpcm)
 
 WaveC,WaveI = SingalToWaveArray(HStrain)
 HSdetrain = WaveArrayToSignal(WaveC,WaveI)[0:HStrain.size]
