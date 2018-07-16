@@ -3,6 +3,7 @@ import numpy as np
 import pylab as pl
 from ufun import *
 from huffman import*
+
 matfn = u'ECG.mat'
 data1 = sio.loadmat(matfn)
 RawECGData = data1['AA']
@@ -32,10 +33,7 @@ HStrain = HS[tind[StartPer + indr - 1]:tind[StartPer + indr] - 1]
 K = getKvalue(HStrain, prdc)  # %获取稀疏度Kmax
 
 # 获取非零系数，拆分为位置流，幅度流，和残差流
-WK = np.zeros((R, K))
-WS = np.zeros((R, K))
-indamp = np.zeros((R, K))
-Evalue = np.zeros((R, K))
+
 xlen = 0
 
 HS_Qpcm = hs_spcm(HStrain, 6)
