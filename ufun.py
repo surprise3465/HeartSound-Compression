@@ -2,7 +2,6 @@ import numpy as np
 from scipy.signal import butter, filtfilt
 from scipy import fftpack
 import pywt as pwt
-import pylab as pl
 
 
 def hs_spcm(x, bit):
@@ -136,17 +135,17 @@ def getKvalue(x, prdvalue):
 
 
 def chooseKmaxValue(inputData, K):
-    maxIndex = []
-    tempData = np.zeros(1, inputData.size)
+    maxData = np.zeros(inputData.size)
+    tempIndex= np.zeros(inputData.size)
     while (K > 0):
-        maxIndex = np.max(np.abs(inputData))
-        tempData[maxIndex] = inputData[maxIndex]
-        maxIndex.append(maxIndex)
+        maxIndex = np.argmax(np.abs(inputData))
+        tempIndex[maxIndex] = 1
+        maxData[maxIndex] = inputData[maxIndex]
         inputData[maxIndex] = 0
         K = K - 1
 
-    IndexArr = np.array(maxIndex, dtype=int)
-    nonZeroData = tempData[IndexArr]
+    IndexArr = np.array(tempIndex, dtype=int)
+    nonZeroData = maxData[(maxData.nonzero())[0]]
 
     return nonZeroData, IndexArr
 

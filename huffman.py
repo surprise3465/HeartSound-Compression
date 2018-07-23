@@ -7,7 +7,6 @@ class HuffNode(object):
     定义一个HuffNode虚类，里面包含两个虚方法：
     1. 获取节点的权重函数
     2. 获取此节点是否是叶节点的函数
-
     """
 
     def get_wieght(self):
