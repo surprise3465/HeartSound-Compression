@@ -15,18 +15,18 @@ HsData = RawHsData.reshape(1, RawHsData.size)[0]
 HS = hs_spcm(HsData, 16)
 
 fs = 4000
-prdc = 10  # 预设失真度
-R = 8  # 单次处理周期数
-StartPer = 1  # 起始周期
+prdc = 10  
+R = 8 
+StartPer = 1 
 qbit = 10
 
-tind = Rwave_detection(EcgData, fs)  # 心音分段
+tind = Rwave_detection(EcgData, fs)  
 tlen = np.diff(tind[StartPer:StartPer + R])
 meanh = np.mean(HS[tind[StartPer]:tind[StartPer + R]])
 HS[tind[StartPer]:tind[StartPer + R]] = HS[tind[StartPer]:tind[StartPer + R]] - meanh
 indmax = np.argmax(tlen)
 HStrain = HS[tind[StartPer + indmax - 1]:tind[StartPer + indmax]]
-K = getKvalue(HStrain, prdc)  # 获取稀疏度Kmax
+K = getKvalue(HStrain, prdc)
 
 HSForTest = HS[tind[StartPer]:tind[StartPer + R]]
 HSReTest = np.zeros(HS.size)
@@ -38,7 +38,7 @@ WS = np.zeros((R,K))
 WL = np.zeros((R,5),dtype = int)
 inforL = []
 AllIndex = []
-# 获取非零系数，拆分为位置流，幅度流，和残差流
+
 for ind in range(0,R):
     HStemp = HS[tind[StartPer + ind]:tind[StartPer + ind +1]]
     WaveC,WaveL = SingalToWaveArray(HStemp)
