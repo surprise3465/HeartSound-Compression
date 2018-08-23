@@ -2,8 +2,11 @@
 Phonocardiogram Compression Using Wavelet Transform Coding
 
 ### Components
-Wavelet Transform
-Lloyd-Max Quantification
-Run-length Coding
-Huffman Coding
+1.Wavelet Transform 
+
+2.Lloyd-Max Quantification 
+
+3.Run-length Coding 
+
+4.Huffman Coding 
 
